@@ -1,0 +1,81 @@
+[
+    {
+      "inputValues": {
+        "fleet": "G1000",
+        "mainAsset": "4010",
+        "date": "2023-12-01",
+        "system": "System1",
+        "subSystem": "SubSystem1",
+        "codeObjet": "CO001",
+        "name": "Name1",
+        "issueType": "IssueType1",
+        "issue": "Issue1",
+        "comment": "Comment1",
+        "media": "Media1"
+      },
+      "solutions": [
+        {
+          "codeObject": "CO001",
+          "codeIssue": "CI001",
+          "date": "2023-12-01",
+          "nameInstructions": "Instructions 1",
+          "views": 100,
+          "usage": "Usage 1",
+          "successRate": 85,
+          "rating": 4,
+          "comment": "This is a solution for issue 1"
+        },
+        {
+          "codeObject": "CO002",
+          "codeIssue": "CI002",
+          "date": "2023-12-02",
+          "nameInstructions": "Instructions 2",
+          "views": 120,
+          "usage": "Usage 2",
+          "successRate": 92,
+          "rating": 5,
+          "comment": "This is another solution for issue 1"
+        }
+      ]
+    },
+    {
+      "inputValues": {
+        "fleet": "Euro4000",
+        "mainAsset": "4010",
+        "date": "2023-12-02",
+        "system": "System2",
+        "subSystem": "SubSystem2",
+        "codeObjet": "CO002",
+        "name": "Name2",
+        "issueType": "IssueType2",
+        "issue": "Issue2",
+        "comment": "Comment2",
+        "media": "Media2"
+      },
+      "solutions": [
+        {
+          "codeObject": "CO003",
+          "codeIssue": "CI003",
+          "date": "2023-12-03",
+          "nameInstructions": "Instructions 3",
+          "views": 150,
+          "usage": "Usage 3",
+          "successRate": 88,
+          "rating": 4,
+          "comment": "This is a solution for issue 2"
+        },
+        {
+          "codeObject": "CO004",
+          "codeIssue": "CI004",
+          "date": "2023-12-04",
+          "nameInstructions": "Instructions 4",
+          "views": 80,
+          "usage": "Usage 4",
+          "successRate": 90,
+          "rating": 3,
+          "comment": "This is another solution for issue 2"
+        }
+      ]
+    }
+  ]
+  

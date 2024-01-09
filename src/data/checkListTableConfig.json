@@ -1,0 +1,48 @@
+{
+    "headers": [
+      {
+        "Header": "Identification",
+        "columns": [
+          { "Header": "📅 Evenement", "accessor": "evenement", "type": "select", "options": ["PC/preparation courante", "VAR/visite arrivée", "En vehicle(traction)"] },
+          { "Header": "👷‍♂️ Personnel", "accessor": "personnel" },
+          { "Header": "🚆 Train", "accessor": "train", "type": "number" }
+        ]
+      },
+      {
+        "Header": "Relevage Compteurs",
+        "columns": [
+          { "Header": "📅 Date", "accessor": "date", "type": "date" },
+          { "Header": "🕒 Time", "accessor": "time", "type": "text" },
+          { "Header": "🛤️ KMs", "accessor": "kms", "type": "number" },
+          { "Header": "🕒 Hours", "accessor": "hours", "type": "number" }
+        ]
+      },
+      {
+        "Header": "Controle Niveau D'huile",
+        "columns": [
+          { "Header": "🛠️ Moteur", "accessor": "moteur", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] },
+          { "Header": "🛠️ Hydrostatique", "accessor": "hydrostatique", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] },
+          { "Header": "🛠️ Compresseur", "accessor": "compresseur", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] },
+          { "Header": "🛠️ Boite", "accessor": "boite", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] }
+        ]
+      },
+      {
+        "Header": "Controle Liquide de Refroidissement",
+        "columns": [
+          { "Header": "🛠️ Moteur", "accessor": "moteur_refroidissement", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] },
+          { "Header": "🛠️ Convertisseur", "accessor": "convertisseur_refroidissement", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] }
+        ]
+      },
+      {
+        "Header": "Controle Divers",
+        "columns": [
+          { "Header": "🛢️ Carburant", "accessor": "carburant", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] },
+          { "Header": "🎛️  Sable", "accessor": "sable", "type": "select", "options": ["<MINI[", "<MINI-25[", "<25-50[", "<50-75[", "<75-MAXI[", ">MAXI["] },
+          { "Header": "Agres", "accessor": "agres", "type": "select", "options": ["Bon", "Mauvais"] },
+          { "Header": "Manque", "accessor": "manque", "type": "select", "options": ["MINI", "MINI-25"] },
+          { "Header": "Permie", "accessor": "perime", "type": "select", "options": ["MINI", "MINI-25"] }
+        ]
+      }
+    ]
+  }
+  
