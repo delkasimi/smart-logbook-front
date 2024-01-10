@@ -1,6 +1,5 @@
 //TicketPage.js
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
 import TicketDataTable from '../components/tickets/TicketDataTable';
 import TicketInputRow from '../components/tickets/TicketInputRow';
 import EditModal from '../components/tickets/EditTicketModal';

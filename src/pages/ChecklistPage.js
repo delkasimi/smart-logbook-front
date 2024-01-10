@@ -1,7 +1,6 @@
 // ChecklistPage.js
 import '../style/Styles.css';
 import React, { useState, useEffect, useMemo } from 'react';
-import Header from '../components/Header';
 import CheckListTable from '../components/checklist/CheckListTable';
 import CheckListInput from '../components/checklist/CheckListInput';
 import CheckListEdit from '../components/checklist/CheckListEdit';

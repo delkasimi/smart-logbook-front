@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import SolutionDataTable from '../components/tickets/SolutionDataTable'; // Adjust the path as per your project structure
 import config from '../configuration/config'; // Adjust the path as per your project structure
-import Header from '../components/Header';
 import SolutionDetailsModal from '../components/tickets/SolutionDetailsModal';
 import SolutionsFilter from '../components/solutions/SolutionsFilter'; // Adjust the path as per your project structure
 

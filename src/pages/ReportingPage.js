@@ -1,6 +1,5 @@
 // ReportingPage.js
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
 import TicketFilter from '../components/tickets/TicketFilter';
 import StatusCountBarChart from '../components/reporting/charts/StatusCountBarChart';
 import IssuesPerSystemStackedBarChart from '../components/reporting/charts/IssuesPerSystemStackedBarChart';
