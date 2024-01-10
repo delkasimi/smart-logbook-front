@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 
@@ -7,6 +7,14 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const { login } = useAuth(); 
+    const auth = useAuth();
+
+    useEffect(() => {
+        // Redirect if already authenticated
+        if (auth.isAuthenticated) {
+            navigate('/checklist');
+        }
+    }, [auth.isAuthenticated, navigate]);
 
     const handleLogin = (e) => {
         e.preventDefault();
