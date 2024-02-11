@@ -400,7 +400,7 @@ const ProceduresPage = () => {
       label: "Event ID",
       name: "event_id",
       type: "select",
-      required: false,
+      required: true,
       options: eventOptions,
     },
     {
