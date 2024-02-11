@@ -1,0 +1,475 @@
+.device-frame {
+    border: 16px solid black;
+    border-radius: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .device-frame.phone {
+    width: 360px;
+    height: 600px;
+    background-color: white;
+  }
+  
+  .device-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Shadow effect */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's above other content */
+  }
+  
+  .device-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: white;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .device-app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    max-height: 100%;
+    width: 100%;
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+    padding: 10px;
+    background-color: rgb(247, 244, 244);
+  }
+
+  /* Localization modal*/
+  .loc-modal {
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    display: flex;
+    align-items: center; /* Align vertical */
+    justify-content: center; /* Align horizontal */
+  }
+  
+  .loc-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0; /* Remove padding to allow the viewer to fill the space */
+    border: 1px solid #888;
+    width: 310px; /* Match device frame width */
+    height: 320px; /* Match device frame height */
+    position: relative; /* For positioning the close button absolutely */
+  }
+  
+  #openseadragon-viewer {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  
+  #marker {
+    position: absolute;
+    /* The top and left values should be set dynamically to match the yCoordinate and xCoordinate */
+    top: 50%; /* Placeholder value */
+    left: 50%; /* Placeholder value */
+    transform: translate(-50%, -50%); /* Center the marker on the coordinates */
+    z-index: 10; /* Ensure it's above the image */
+    width: 30px; /* Example size */
+    height: 30px; /* Example size */
+    background-color: red; /* Example marker color */
+    border-radius: 50%; /* Makes it a circle */
+    display: block;
+  }
+  
+  /* The Close Button */
+  .loc-close-button {
+    font-size: 1.8em;
+    text-align: right;
+    color: #b50808; /* Default text color */
+    padding-right: 5px;
+  }
+  
+  .loc-close-button:hover,
+  .loc-close-button:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+
+  .screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    max-width: 100%;
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  }  
+  
+  .device-app-header{
+    text-align: center;
+    padding: 5px;
+    width: 100%;
+    border-bottom: 3px solid #ddd;
+  }
+
+  .device-app-footer {
+    text-align: center;
+    margin-bottom: 2px;
+    width: 60%;
+    height: 35px;
+  }
+  
+  .device-app-header img {
+    max-width: 100%;
+    height: 35px;
+  }
+  
+  .device-app-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    bottom: 0;
+    background-color: #fff; /* Background color for the footer */
+    max-height: 50px; /* Adjust the height as needed */
+    overflow: hidden; /* Hide content if it overflows */
+  }
+
+.device-button {
+    border: none;
+    padding: 8px 16px; /* Set padding for buttons */
+    cursor: pointer;
+    min-width: 60px; /* Set a minimum width for buttons */
+    background-color: #3f92eb; /* Default background color */
+    color: #fff; /* Default text color */
+  }
+  
+  /* Style for disabled buttons */
+  .device-button.disabled {
+    background-color: #ccc;
+    color: #fff;
+    cursor: not-allowed;
+  }
+  
+  /* Style for hover (active) buttons */
+  .device-button:hover:not(.disabled) {
+    background-color: #0056b3;
+  }
+
+  .device-spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .wave-dot {
+    background-color: #09f;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin: 5px;
+    animation: wave 1.5s infinite ease-in-out;
+  }
+  
+  /* Create the wave animation */
+  @keyframes wave {
+    0%, 40%, 100% {
+      transform: translateY(0);
+    }
+    20% {
+      transform: translateY(-20px);
+    }
+    60% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  /* Delay the animation for each dot */
+  .wave-dot:nth-child(1) { animation-delay: 0s; }
+  .wave-dot:nth-child(2) { animation-delay: 0.1s; }
+  .wave-dot:nth-child(3) { animation-delay: 0.2s; }
+  .wave-dot:nth-child(4) { animation-delay: 0.3s; }
+  .wave-dot:nth-child(5) { animation-delay: 0.4s; }
+
+  /* Slide in and out for 'next' direction */
+  .slide-next-enter {
+    transform: translateX(100%);
+  }
+  .slide-next-enter-active {
+    transform: translateX(0);
+    transition: transform 300ms ease-out;
+  }
+  
+  .slide-next-exit{
+    opacity: 0;
+  }
+
+    /* Ensure the active exit state moves the element out without making it reappear */
+    .slide-next-exit-active {
+        transform: translateX(-100%);
+        opacity: 0;
+        transition: transform 300ms ease-out, opacity 0ms;
+      }
+
+  /* Slide in and out for 'prev' direction */
+  .slide-prev-enter {
+    transform: translateX(-100%);
+  }
+  .slide-prev-enter-active {
+    transform: translateX(0);
+    transition: transform 300ms ease-out;
+  }
+
+.slide-prev-exit {
+    opacity: 0;
+  }
+  
+  .slide-prev-exit-active {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 300ms ease-out, opacity 0ms;
+  }
+  
+  /* Procedure details screen*/
+
+  /* CSS for Section */
+.section {
+    border: 1px solid #92a2d7; /* Add a border to the section */
+    padding: 10px; /* Add some padding to the section */
+    margin-bottom: 8px; /* Add margin at the bottom of each section */
+    border-radius: 8px; /* Add rounded corners to the section */
+    background-color: white;
+  }
+  
+  /* CSS for Section List */
+  .section-list {
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove padding from the list */
+  }
+  
+  /* CSS for Section List Items */
+  .section-list li {
+    margin-bottom: 10px; /* Add margin at the bottom of each list item */
+  }
+  
+  /* CSS for Key/Value Pairs (bold key) */
+  .section-list li strong {
+    font-weight: bold; /* Make the key text bold */
+    margin-right: 5px; /* Add a small margin to separate key and value */
+  }
+
+.flag-section img{
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  .action-flag-section img{
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  .action-flag-section span{
+    font-size: 0.8em;
+  }
+
+  
+/*image grid*/
+
+.device-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Adjust as needed */
+  gap: 7px;
+  margin-top: 10px; /* Add some space above the grid */
+}
+
+.device-image-grid img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.device-image-grid .device-image-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.device-image-comment {
+  text-align: center;
+  font-size: 0.9em;
+  margin-top: 3px;
+}
+
+.device-image-grid img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px; /* Optional for rounded corners */
+}
+
+  /* drop down select for obj state */
+
+  .inline-dropdown {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 2; /* Ensure dropdown is above other elements */
+  }
+  
+  .inline-dropdown div {
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .inline-dropdown div:hover {
+    background-color: #f0f0f0;
+  }
+
+  .inline-dropdown .selected {
+    background-color: #4CAF50; /* Green background for selected items */
+    color: white; /* White text color for better contrast */
+  }
+  
+
+/* section background */
+
+  .important-bg {
+    background-color: lightgoldenrodyellow;
+  }
+  
+  .information-bg {
+    background-color: lightgreen;
+  }
+
+  /* response type */
+  
+  .confirmation-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .slider-container {
+    width: 80%;
+    margin: 20px auto;
+  }
+  
+  
+  .confirmation-option {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Add transition for smoother color change */
+  }
+  
+  .confirmation-option:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
+  }
+  
+  .selected {
+    background-color: #4caf50 !important; /* Change background color for selected option */
+  }
+  
+  
+  .input-text,
+  .numeric-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+  }
+  
+  /* Custom styles for rc-slider */
+.rc-slider {
+  width: 90%; /* Set the width of the slider */
+}
+
+.rc-slider-track {
+  background-color: #007bff;
+}
+
+.rc-slider-handle {
+  border-color: #007bff;
+}
+
+.rc-slider-handle:hover, .rc-slider-handle:focus {
+  border-color: #0056b3;
+}
+
+.rc-slider-handle-active {
+  border-color: #0056b3;
+}
+
+.rc-slider-mark-text {
+  color: #000;
+}
+
+/* end screen send button*/ 
+.SendButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff; /* Primary button color */
+  color: #ffffff; /* Text color */
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+  display: block;
+  margin: 0 auto; /* Center the button horizontally */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+.SendButton:hover {
+  background-color: #0056b3; /* Darker shade for hover effect */
+}
+
+.CloseButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #c32828; /* Primary button color */
+  color: #ffffff; /* Text color */
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+  display: block;
+  margin: 0 auto; /* Center the button horizontally */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+.CloseButton:hover {
+  background-color: #e80202; /* Darker shade for hover effect */
+}

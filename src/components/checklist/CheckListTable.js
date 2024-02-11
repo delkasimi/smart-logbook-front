@@ -1,13 +1,17 @@
 // CheckListTable.js
-import React, { useEffect, useMemo, useState } from 'react';
-import { useTable, useSortBy, usePagination } from 'react-table';
-import { FaEdit, FaTrash } from 'react-icons/fa';
-import EditModal from './CheckListEdit';
+import React, { useEffect, useMemo, useState } from "react";
+import { useTable, useSortBy, usePagination } from "react-table";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import EditModal from "./CheckListEdit";
 
-const CheckListTable = ({ data, headers, onEditRow, onDeleteRow, setEditingRow }) => {
+const CheckListTable = ({
+  data,
+  headers,
+  onEditRow,
+  onDeleteRow,
+  setEditingRow,
+}) => {
   const [showEditModal, setShowEditModal] = useState(false);
-  
-  
 
   const {
     getTableProps,
@@ -31,47 +35,46 @@ const CheckListTable = ({ data, headers, onEditRow, onDeleteRow, setEditingRow }
     useSortBy,
     usePagination
   );
-  
+
   const pageCount = Math.ceil(data.length / pageSize);
   const pageOptions = useMemo(() => {
     return new Array(pageCount).fill(null).map((_, index) => index + 1);
   }, [pageCount]);
 
   const handleEditRow = (row) => {
-    console.log('Edit button clicked. Row:', row);
     setEditingRow(row);
     setShowEditModal(true);
   };
-  
 
   return (
-    
     <div className="table-wrapper">
-
       <table {...getTableProps()} className="zebra -highlight react-table">
         <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr
-            {...headerGroup.getHeaderGroupProps()}
-            className={`group-header depth-${headerGroup.headers[0].depth}`}
-          >
-            {headerGroup.headers.map((column) => (
-              <th
-              {...column.getHeaderProps(column.getSortByToggleProps())}
-              className={`column-header`}
-              style={{ border: '2px solid black' }} // Add this line for thick borders
+          {headerGroups.map((headerGroup) => (
+            <tr
+              {...headerGroup.getHeaderGroupProps()}
+              className={`group-header depth-${headerGroup.headers[0].depth}`}
             >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  {column.render('Header')}
-                  <span>
-                    {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
-                  </span>
-                </div>
-              </th>
-            ))}
-          </tr>
-        ))}
-
+              {headerGroup.headers.map((column) => (
+                <th
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  className={`column-header`}
+                  style={{ border: "2px solid black" }} // Add this line for thick borders
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {column.render("Header")}
+                    <span>
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? " 🔽"
+                          : " 🔼"
+                        : ""}
+                    </span>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          ))}
         </thead>
         <tbody {...getTableBodyProps()}>
           {page.map((row, index) => {
@@ -80,38 +83,48 @@ const CheckListTable = ({ data, headers, onEditRow, onDeleteRow, setEditingRow }
               <tr
                 {...row.getRowProps()}
                 onMouseEnter={() => {
-                  // ... 
+                  // ...
                 }}
                 onMouseLeave={() => {
                   // ... Y
                 }}
               >
                 {row.cells.map((cell) => (
-                        <td
-                                {...cell.getCellProps()}
-                                   style={{
-                                     backgroundColor:
-                                       //cell.column.id === 'yourColumnId' // Replace 'yourColumnId' with the actual column id
-                                          cell.value === '<MINI[' || cell.value === '>MAXI[' || cell.value === 'Mauvais'
-                                           ? '#ee020275'
-                                           : cell.value === '<MINI-25[' || cell.value === '<25-50['
-                                           ? '#fffacd'
-                                           : cell.value === '<75-MAXI[' || cell.value === '<50-75[' || cell.value === 'Bon'
-                                           ? '#00bc8c6e'
-                                           : 'transparent' // Default background color
-                                         
-                                   }}
-                                 >
-                                {cell.render('Cell')}
-                          </td>
+                  <td
+                    {...cell.getCellProps()}
+                    style={{
+                      backgroundColor:
+                        //cell.column.id === 'yourColumnId' // Replace 'yourColumnId' with the actual column id
+                        cell.value === "<MINI[" ||
+                        cell.value === ">MAXI[" ||
+                        cell.value === "Mauvais"
+                          ? "#ee020275"
+                          : cell.value === "<MINI-25[" ||
+                            cell.value === "<25-50["
+                          ? "#fffacd"
+                          : cell.value === "<75-MAXI[" ||
+                            cell.value === "<50-75[" ||
+                            cell.value === "Bon"
+                          ? "#00bc8c6e"
+                          : "transparent", // Default background color
+                    }}
+                  >
+                    {cell.render("Cell")}
+                  </td>
                 ))}
                 <td>
-                  <button className="edit-button" onClick={() => onEditRow(row.original)}>
+                  <button
+                    className="edit-button"
+                    onClick={() => onEditRow(row.original)}
+                  >
                     <FaEdit />
                   </button>
                 </td>
                 <td>
-                  <button className="delete-button" onClick={() => onDeleteRow(row.original)}>
+                  <button
+                    className="delete-button"
+                    onClick={() => onDeleteRow(row.original)}
+                  >
                     <FaTrash />
                   </button>
                 </td>
@@ -139,25 +152,28 @@ const CheckListTable = ({ data, headers, onEditRow, onDeleteRow, setEditingRow }
         {/* Pagination controls */}
         <div>
           <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-            {'<<'}
-          </button>{' '}
+            {"<<"}
+          </button>{" "}
           <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            {'<'}
-          </button>{' '}
+            {"<"}
+          </button>{" "}
           <button onClick={() => nextPage()} disabled={!canNextPage}>
-            {'>'}
-          </button>{' '}
-          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-            {'>>'}
-          </button>{' '}
+            {">"}
+          </button>{" "}
+          <button
+            onClick={() => gotoPage(pageCount - 1)}
+            disabled={!canNextPage}
+          >
+            {">>"}
+          </button>{" "}
           <span>
-            Page{' '}
+            Page{" "}
             <strong>
               {pageIndex + 1} of {pageOptions ? pageOptions.length : 1}
-            </strong>{' '}
+            </strong>{" "}
           </span>
           <span>
-            | Go to page:{' '}
+            | Go to page:{" "}
             <input
               type="number"
               defaultValue={pageIndex + 1}
@@ -165,9 +181,9 @@ const CheckListTable = ({ data, headers, onEditRow, onDeleteRow, setEditingRow }
                 const page = e.target.value ? Number(e.target.value) - 1 : 0;
                 gotoPage(page);
               }}
-              style={{ width: '50px' }}
+              style={{ width: "50px" }}
             />
-          </span>{' '}
+          </span>{" "}
           <select
             value={pageSize}
             onChange={(e) => {
