@@ -256,6 +256,7 @@
     margin-bottom: 8px; /* Add margin at the bottom of each section */
     border-radius: 8px; /* Add rounded corners to the section */
     background-color: white;
+    position: relative;
   }
   
   /* CSS for Section List */
@@ -274,6 +275,50 @@
     font-weight: bold; /* Make the key text bold */
     margin-right: 5px; /* Add a small margin to separate key and value */
   }
+  .section label {
+    font-size: 13px; 
+  }
+
+  .section textarea {
+    width: 100%; 
+  }
+
+  .select-anomalie {
+    width: 100%; /* Make select fill the parent container */
+    max-width: 100%; /* Ensure select does not overflow the parent container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    margin: 0.5em 0; /* Add some margin for spacing */
+    padding: 0.5em; /* Add some padding inside the select for better readability */
+    border: 1px solid #ccc; /* A light border for the select */
+    border-radius: 4px; /* Rounded corners for the select */
+    background-color: white; /* Background color */
+    font-size: 1em; /* Text size */
+  }
+  
+  .select-anomalie:focus {
+    border-color: #007bff; /* Change border color when select is focused */
+    outline: none; /* Remove default focus outline */
+  }
+  
+  /* Style for the options */
+  .select-anomalie option {
+    padding: 0.5em; /* Padding inside options for better readability */
+    background-color: white; /* Background color for options */
+    color: #333; /* Text color for options */
+  }
+  
+  /* You might want to add custom styles for disabled or selected options */
+  .select-anomalie option:disabled {
+    background-color: #f2f2f2;
+    color: #999;
+  }
+  
+  .select-anomalie option:selected {
+    background-color: #007bff;
+    color: white;
+  }
+  
+
 
 .flag-section img{
     width: 30px;
@@ -284,8 +329,8 @@
   }
 
   .action-flag-section img{
-    width: 50px;
-    height: 50px;
+    width: 25px;
+    height: 25px;
     display: inline-block;
     vertical-align: middle;
     margin-right: 8px;
@@ -293,6 +338,16 @@
   .action-flag-section span{
     font-size: 0.8em;
   }
+
+  .numeric-input-group {
+    margin-bottom: 10px;
+  }
+  
+  .numeric-input-group label {
+    margin-right: 5px;
+    font-size: 0.9em;
+  }
+  
 
   
 /*image grid*/
@@ -333,35 +388,64 @@
 }
 
   /* drop down select for obj state */
-
   .inline-dropdown {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    z-index: 2; /* Ensure dropdown is above other elements */
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 2px;
+    z-index: 1;
   }
   
   .inline-dropdown div {
     padding: 10px;
     cursor: pointer;
-    text-align: center;
   }
   
   .inline-dropdown div:hover {
-    background-color: #f0f0f0;
-  }
-
-  .inline-dropdown .selected {
-    background-color: #4CAF50; /* Green background for selected items */
-    color: white; /* White text color for better contrast */
+    background-color: #859fb5;
   }
   
+  
+/* table section */
+
+.table-section {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-section th, .table-section td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table-section th {
+  background-color: #80b7c4;
+}
+
+.table-section img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.table-section button {
+  padding: 3px 3px;
+  border: none;
+  border-radius: 3px;
+  background-color: #6ea859; /* Primary button color */
+  color: #ffffff; /* Text color */
+  font-size: 10px;
+  cursor: pointer;
+  outline: none;
+  display: block;
+  margin: 0 auto; /* Center the button horizontally */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+.table-section button:hover {
+  background-color: #10713c; /* Darker shade for hover effect */
+}
+
 
 /* section background */
 
@@ -473,3 +557,41 @@
 .CloseButton:hover {
   background-color: #e80202; /* Darker shade for hover effect */
 }
+
+.action-flex-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-text {
+  background-color: brown;
+  padding: 4px;
+  border-radius: 4px;
+  color: white;
+  display: inline-block;
+}
+
+.action-location-button {
+  background-color: rgb(64, 126, 178);
+  padding: 2px;
+  border-radius: 4px;
+  color: white;
+  display: inline-block;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 1em;
+}
+
+.progress-bar {
+  height: 10px;
+  background-color: #4caf50;
+  border-radius: 5px;
+  transition: width 0.3s ease-in-out;
+}
+

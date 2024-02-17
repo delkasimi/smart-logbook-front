@@ -2,27 +2,22 @@ import React, { useState, useEffect } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
-const ResponseTypes = ({
-  responseType,
-  responseTypes,
-  collectResponse,
-  initialResponse,
-}) => {
+const ResponseTypes = ({ action, collectResponse, initialResponse }) => {
   const [sliderValue, setSliderValue] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
   const [textInputValue, setTextInputValue] = useState("");
 
-  // Get options dynamically from responseTypeObject
-  const options = responseTypes.find((rt) => rt.type === responseType)?.options;
+  const [numericInputValues, setNumericInputValues] = useState({});
 
+  const responseType = action.ActionReference.ResponseType.type;
+  const options = action.ActionReference.ResponseType?.options;
+  const issues = action.ActionReference.Issues;
+  const [selectedIssueId, setSelectedIssueId] = useState("");
+  console.log("initialResponse:", initialResponse);
   useEffect(() => {
     if (initialResponse && initialResponse.response && options) {
       const { responseType, response: value } = initialResponse;
 
       switch (responseType) {
-        case "Confirmation":
-          setSelectedOption(value);
-          break;
         case "FreeText":
         case "NumericInput":
           setTextInputValue(value);
@@ -36,11 +31,57 @@ const ResponseTypes = ({
           break;
       }
     }
-  }, [initialResponse, options]);
+    if (
+      responseType === "Manque" &&
+      action.Objects &&
+      action.Objects.length > 0 &&
+      !Object.keys(numericInputValues).length &&
+      initialResponse.response
+    ) {
+      const initialValues = initialResponse.response;
+      console.log("initialResponse:", initialResponse);
+      setNumericInputValues(initialValues);
+    }
 
-  const handleConfirmationClick = (option) => {
-    setSelectedOption(option);
-    collectResponse({ responseType, response: option });
+    if (responseType === "Anomalie" && initialResponse.response) {
+      setSelectedIssueId(initialResponse.response.issue_id);
+    }
+  }, [initialResponse, options, action.Objects, numericInputValues]);
+
+  const handleSelectChange = (event) => {
+    const selectedIssueId = event.target.value;
+    setSelectedIssueId(selectedIssueId); // Update the state to reflect the new selection
+    const selectedIssue = issues.find(
+      (issue) => issue.issue_id.toString() === selectedIssueId
+    );
+    if (selectedIssue) {
+      collectResponse({
+        responseType,
+        response: {
+          issue_id: selectedIssue.issue_id,
+          code: selectedIssue.code,
+          label: selectedIssue.label,
+        },
+      });
+    }
+  };
+
+  // Generate options for the "Anomalie" select field
+  const generateIssueOptions = () => {
+    return issues.map((issue) => (
+      <option key={issue.issue_id} value={issue.issue_id}>
+        {issue.code} - {issue.label}
+      </option>
+    ));
+  };
+
+  const handleManqueInputChange = (objId, value) => {
+    setNumericInputValues((prevValues) => {
+      const updatedValues = { ...prevValues, [objId]: value };
+      collectResponse({ responseType, response: updatedValues });
+
+      return updatedValues;
+    });
   };
 
   const handleTextInputChange = (event) => {
@@ -61,14 +102,6 @@ const ResponseTypes = ({
     collectResponse({ responseType, response: value }); // Collect the response
   };
 
-  // Find the response type object based on the response type
-  const responseTypeObject = responseTypes.find(
-    (rt) => rt.type === responseType
-  );
-
-  // If responseTypeObject is not found, return null or handle the case
-  if (!responseTypeObject) return null;
-
   const generateMarks = (options) => {
     return options.reduce((marks, option, index) => {
       marks[index] = option;
@@ -78,53 +111,109 @@ const ResponseTypes = ({
 
   // Render the appropriate response type component based on responseType
   switch (responseType) {
-    case "Confirmation":
-      return (
-        <div className="confirmation-container">
-          {options.map((option, index) => (
-            <div
-              key={index}
-              className={`confirmation-option ${
-                selectedOption === option ? "selected" : ""
-              }`}
-              onClick={() => handleConfirmationClick(option)}
-            >
-              {option}
-            </div>
-          ))}
-        </div>
-      );
     case "FreeText":
       return (
-        <input
-          type="text"
-          className="input-text"
-          value={textInputValue}
-          onChange={handleTextInputChange}
-        />
+        <div className="section">
+          <label>
+            {action.ActionReference.response_label
+              ? action.ActionReference.response_label
+              : Response}
+          </label>
+          <div>
+            <input
+              type="text"
+              className="input-text"
+              value={textInputValue}
+              onChange={handleTextInputChange}
+            />
+          </div>
+        </div>
       );
     case "NumericInput":
       return (
-        <input
-          type="number"
-          className="numeric-input"
-          value={textInputValue}
-          onChange={handleNumericInputChange}
-        />
+        <div className="section">
+          <label>
+            {action.ActionReference.response_label
+              ? action.ActionReference.response_label
+              : Response}
+          </label>
+          <div>
+            <input
+              type="number"
+              className="numeric-input"
+              value={textInputValue}
+              onChange={handleNumericInputChange}
+            />
+          </div>
+        </div>
       );
     case "Slider":
       return (
-        <div className="slider-container">
-          <Slider
-            min={0}
-            max={options.length - 1}
-            defaultValue={sliderValue}
-            value={sliderValue}
-            marks={generateMarks(options)}
-            onChange={handleSliderChange}
-          />
+        <div className="section">
+          <label>
+            {action.ActionReference.response_label
+              ? action.ActionReference.response_label
+              : Response}
+          </label>
+          <div>
+            <div className="slider-container">
+              <Slider
+                min={0}
+                max={options.length - 1}
+                defaultValue={sliderValue}
+                value={sliderValue}
+                marks={generateMarks(options)}
+                onChange={handleSliderChange}
+              />
+            </div>
+          </div>
         </div>
       );
+    case "Manque":
+      if (action.Objects.length > 0) {
+        return (
+          <div className="section">
+            <label>{action.ActionReference.response_label || "Manque"}</label>
+            <div>
+              {action.Objects.map((obj) => (
+                <div key={obj.object_id} className="numeric-input-group">
+                  <label>
+                    {obj.object_id} - {obj.object_code} - {obj.object_name}
+                  </label>
+                  <input
+                    type="number"
+                    value={numericInputValues[obj.object_id] || ""}
+                    onChange={(e) =>
+                      handleManqueInputChange(obj.object_id, e.target.value)
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      break;
+
+    case "Anomalie":
+      return (
+        <div className="section">
+          <label>
+            {action.ActionReference.response_label || "Select error code:"}
+          </label>
+          <div>
+            <select
+              value={selectedIssueId}
+              onChange={handleSelectChange}
+              className="select-anomalie"
+            >
+              <option value="">Select an issue...</option>
+              {generateIssueOptions()}
+            </select>
+          </div>
+        </div>
+      );
+
     default:
       return null;
   }

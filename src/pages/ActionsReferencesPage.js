@@ -20,6 +20,8 @@ const ActionsReferencesPage = () => {
   const [actionTypes, setActionTypes] = useState([]);
   const [responseTypes, setResponseTypes] = useState([]);
   const [acts, setActs] = useState([]);
+  const [localizations, setLocalizations] = useState([]);
+  const [issues, setIssues] = useState([]);
 
   const [formSchema, setFormSchema] = useState([
     {
@@ -41,6 +43,16 @@ const ActionsReferencesPage = () => {
       required: true,
     },
     {
+      label: "Localization",
+      name: "localization_id",
+      type: "select",
+      options: localizations.map((loc) => ({
+        label: `${loc.localization_id} - ${loc.code} - ${loc.name}`,
+        value: loc.localization_id,
+      })),
+      required: true,
+    },
+    {
       label: "Description",
       name: "description",
       type: "text",
@@ -49,7 +61,14 @@ const ActionsReferencesPage = () => {
     {
       label: "Object References",
       name: "object_id",
-      type: "select-multiple", // Use the new type for multiple selection
+      type: "select-multiple",
+      options: [],
+      required: false,
+    },
+    {
+      label: "Issues Codes",
+      name: "issue_ids",
+      type: "select-multiple",
       options: [],
       required: false,
     },
@@ -68,6 +87,12 @@ const ActionsReferencesPage = () => {
       name: "response_label",
       type: "text",
       required: true,
+    },
+    {
+      label: "Upload Photo",
+      name: "upload_photo",
+      type: "file",
+      required: false,
     },
   ]);
 
@@ -94,6 +119,16 @@ const ActionsReferencesPage = () => {
       Cell: ({ value }) => {
         const act = acts.find((a) => a.act_id === value);
         return act ? `${act.act_id} - ${act.act}` : "Unknown";
+      },
+    },
+    {
+      Header: "Localization",
+      accessor: "localization_id",
+      Cell: ({ value }) => {
+        const loc = localizations.find((l) => l.localization_id === value);
+        return loc
+          ? `${loc.localization_id} - ${loc.code} - ${loc.name}`
+          : "Unknown";
       },
     },
     {
@@ -127,6 +162,31 @@ const ActionsReferencesPage = () => {
           return object
             ? `${object.object_id} - ${object.object_name}`
             : "Unknown";
+        }
+      },
+    },
+    {
+      Header: "Issue Codes",
+      accessor: "issue_ids",
+      Cell: ({ value }) => {
+        if (value === null) {
+          return "No Issue";
+        } else if (Array.isArray(value)) {
+          // If object_id is an array, render as a list of object names
+          const issueNames = value.map((issueId) => {
+            const issue = issues.find((iss) => iss.issue_id === issueId);
+            return issue ? `${issue.code} - ${issue.label}` : "";
+          });
+          return (
+            <ul>
+              {issueNames.map((name) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+          );
+        } else {
+          const issue = issues.find((iss) => iss.issue_id === value);
+          return issue ? `${issue.code} - ${issue.label}` : "";
         }
       },
     },
@@ -294,6 +354,48 @@ const ActionsReferencesPage = () => {
         );
       })
       .catch((error) => console.error("Error fetching acts:", error));
+
+    fetch(`${config.API_BASE_URL}/localizations`)
+      .then((response) => response.json())
+      .then((data) => {
+        setLocalizations(data);
+
+        const localizationsOptions = data.map((loc) => ({
+          value: loc.localization_id,
+          label: `${loc.localization_id} - ${loc.code} - ${loc.name}`,
+        }));
+        // Update form schema for response type options
+        setFormSchema((prevSchema) =>
+          prevSchema.map((field) => {
+            if (field.name === "localization_id") {
+              return { ...field, options: localizationsOptions };
+            }
+            return field;
+          })
+        );
+      })
+      .catch((error) => console.error("Error fetching acts:", error));
+
+    fetch(`${config.API_BASE_URL}/issues`)
+      .then((response) => response.json())
+      .then((data) => {
+        setIssues(data);
+        setFormSchema((prevSchema) =>
+          prevSchema.map((field) => {
+            if (field.name === "issue_ids") {
+              return {
+                ...field,
+                options: data.map((issue) => ({
+                  label: `${issue.code} - ${issue.label}`,
+                  value: issue.issue_id,
+                })),
+              };
+            }
+            return field;
+          })
+        );
+      })
+      .catch((error) => console.error("Error fetching issues:", error));
   };
 
   useEffect(() => {
@@ -318,35 +420,58 @@ const ActionsReferencesPage = () => {
   };
 
   const handleAddItem = (formData) => {
-    // Implement add item functionality here
-    const apiUrl = `${config.API_BASE_URL}/actionReferences`;
+    return new Promise((resolve, reject) => {
+      const apiUrl = `${config.API_BASE_URL}/actionReferences`;
 
-    fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+      fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       })
-      .then((data) => {
-        setItemsData((prevData) => [...prevData, data]);
-        toastr.success("Action Reference added successfully", "Success");
-        setIsAddItemModalOpen(false);
-      })
-      .catch((error) => {
-        console.error("Error adding action reference:", error);
-        toastr.error("Failed to add action reference", "Error");
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setItemsData((prevData) => [...prevData, data]);
+          toastr.success("Action Reference added successfully", "Success");
+          setIsAddItemModalOpen(false);
+          resolve(data.action_reference_id);
+        })
+        .catch((error) => {
+          console.error("Error adding action reference:", error);
+          toastr.error("Failed to add action reference", "Error");
+          reject(error);
+        });
+    });
   };
 
   const handleOpenEditModal = (itemData) => {
-    setSelectedItemData(itemData);
+    console.log("itemData:", itemData);
+    // Retrieve media data for the selected object from the global mediaData state
+    const Media = Array.isArray(itemData.Media) ? itemData.Media : [];
+
+    // Format the media data as needed by your form. For example, if your form expects
+    // mediaData to be an array of objects with certain properties, ensure to format it accordingly
+    const formattedMediaData = Media.map((media) => ({
+      mediaId: media.media_id,
+      mediaUrl: media.media_url,
+      comment: media.comment,
+    }));
+
+    // Include formattedMediaData in initialData
+    const initialDataWithMedia = {
+      ...itemData,
+      mediaData: formattedMediaData, // Add the media data under a property that the form expects
+    };
+
+    setSelectedItemData(initialDataWithMedia);
+    console.log("formSchema:", formSchema);
+    console.log("initialDataWithMedia:", initialDataWithMedia);
     setIsEditItemModalOpen(true);
   };
 
@@ -355,47 +480,218 @@ const ActionsReferencesPage = () => {
     setIsEditItemModalOpen(false);
   };
 
-  const handleFormSubmit = (formData) => {
+  const handleFormSubmit = async (formData) => {
+    console.log("formData", formData);
+
     // Convert selected object IDs to an array
     const objectIds = Array.isArray(formData.object_id)
       ? formData.object_id
       : [formData.object_id];
 
+    let action_reference_id;
+
     if (selectedItemData) {
       // Editing item
-      handleEditItem({ ...formData, object_id: objectIds });
+      action_reference_id = await handleEditItem({
+        ...formData,
+        object_id: objectIds,
+      });
     } else {
       // Adding item
-      handleAddItem({ ...formData, object_id: objectIds });
+      action_reference_id = await handleAddItem({
+        ...formData,
+        object_id: objectIds,
+      });
     }
+
+    const { mediaData, ...otherFormData } = formData;
+
+    if (mediaData && mediaData.length > 0 && action_reference_id) {
+      await handleMediaUploadAndCreation(mediaData, action_reference_id);
+    }
+
+    fetchData();
   };
 
-  const handleEditItem = (formData) => {
-    // Implement edit action reference functionality here
-    const apiUrl = `${config.API_BASE_URL}/actionReferences/${formData.action_reference_id}`;
+  //media management
+  async function handleMediaUploadAndCreation(
+    mediaData,
+    associatedId,
+    associated_type = "action_reference"
+  ) {
+    for (const media of mediaData) {
+      // Extract file, comment, isDeleted, and isCommentUpdated
+      const { mediaId, file, comment, isDeleted, isCommentUpdated } = media;
 
-    fetch(apiUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+      if (isDeleted) {
+        // If isDeleted is true, call deleteMediaForObject
+        await deleteMediaForObject(mediaId);
+        continue; // Skip this iteration
+      }
+
+      if (!file && !isCommentUpdated) {
+        // If neither file nor isCommentUpdated is present, skip this iteration
+        console.error("No image file or comment update present");
+        continue;
+      }
+
+      // Upload the image if file is present
+      if (file) {
+        const uploadResponse = await uploadImage(file);
+        if (uploadResponse && uploadResponse.fileUrl) {
+          // Extract the media type from the file
+          const mediaType = file.type.split("/")[1]; // Example: 'image/jpeg' to 'jpeg'
+
+          // Create and associate the media
+          await createAndAssociateMedia(
+            uploadResponse.fileUrl,
+            mediaType,
+            comment,
+            associatedId,
+            associated_type
+          );
+        } else {
+          console.error("Failed to upload image:", file.name);
+          toastr.error("Error uploading file ", "Error");
+          // Optionally handle the error, e.g., by notifying the user
         }
-        return response.json();
-      })
-      .then((data) => {
-        fetchData();
-        toastr.success("Action Reference edited successfully", "Success");
-        setIsEditItemModalOpen(false);
-      })
-      .catch((error) => {
-        console.error("Error editing Action Reference:", error);
-        toastr.error("Failed to edit Action Reference", "Error");
+      } else if (isCommentUpdated) {
+        // If isCommentUpdated is true, call updateMediaForObject
+        await updateMediaForObject(mediaId, comment);
+      }
+    }
+  }
+
+  // Function to delete media for a specific object by media ID
+  async function deleteMediaForObject(mediaId) {
+    try {
+      const response = await fetch(`${config.API_BASE_URL}/media/${mediaId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
+      if (response.status === 200) {
+        console.log(`Media with ID ${mediaId} deleted successfully.`);
+      } else {
+        console.error(`Failed to delete media with ID ${mediaId}.`);
+      }
+    } catch (error) {
+      console.error(`Error deleting media with ID ${mediaId}:`, error);
+    }
+  }
+
+  // Function to update the comment for media associated with an object by media ID
+  async function updateMediaForObject(mediaId, comment) {
+    try {
+      const requestBody = {
+        comment: comment,
+      };
+
+      const response = await fetch(`${config.API_BASE_URL}/media/${mediaId}`, {
+        method: "PUT", // Use PATCH method to update the comment
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.status === 200) {
+        console.log(`Media comment for ID ${mediaId} updated successfully.`);
+      } else {
+        console.error(`Failed to update media comment for ID ${mediaId}.`);
+      }
+    } catch (error) {
+      console.error(`Error updating media comment for ID ${mediaId}:`, error);
+    }
+  }
+
+  async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      console.log("Uploading file:", file);
+      const response = await fetch(`${config.API_BASE_URL}/media/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      toastr.success("file uploaded successfully", "Success");
+      return await response.json();
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      return null;
+    }
+  }
+
+  async function createAndAssociateMedia(
+    uploadedImageUrl,
+    mediaType,
+    comment,
+    associatedId,
+    associated_type = "action_reference"
+  ) {
+    const payload = {
+      associated_id: associatedId,
+      associated_type: associated_type,
+      media_url: uploadedImageUrl,
+      media_type: mediaType,
+      comment: comment,
+    };
+
+    try {
+      const response = await fetch(`${config.API_BASE_URL}/media`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error creating media:", error);
+      return null;
+    }
+  }
+
+  const handleEditItem = (formData) => {
+    return new Promise((resolve, reject) => {
+      const apiUrl = `${config.API_BASE_URL}/actionReferences/${formData.action_reference_id}`;
+
+      fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toastr.success("Action Reference edited successfully", "Success");
+          setIsEditItemModalOpen(false);
+          resolve(data.action_reference_id);
+        })
+        .catch((error) => {
+          console.error("Error editing Action Reference:", error);
+          toastr.error("Failed to edit Action Reference", "Error");
+          reject(error);
+        });
+    });
   };
 
   const handleDeleteClick = (actionReferenceId) => {

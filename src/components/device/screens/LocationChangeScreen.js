@@ -11,8 +11,7 @@ const LocationChangeScreen = ({
 
   const handleOpenModal = () => {
     setModalOpen(true);
-    // Initialize OpenSeadragon after opening the modal
-    setTimeout(initializeOpenSeadragon, 100); // Adding a timeout to ensure DOM elements are ready
+    setTimeout(initializeOpenSeadragon, 100);
   };
 
   const initializeOpenSeadragon = () => {
@@ -24,46 +23,30 @@ const LocationChangeScreen = ({
         type: "image",
         url: imageUrl,
       },
-      // Set the visibility ratio to ensure that the image covers as much of the viewer as possible
       visibilityRatio: 1,
-      // Set the minZoomImageRatio to 1 to allow the image to fill the viewer on the initial load
       minZoomImageRatio: 1,
     });
 
-    // Ensure the viewer is initially centered on the marker's location
     viewer.addHandler("open", function () {
       viewer.viewport.zoomTo(viewer.viewport.getHomeZoom());
       const tiledImage = viewer.world.getItemAt(0);
       const imageBounds = tiledImage.getBounds();
-
-      // Calculate the image point at 15% width from the left and 30% height from the top
       const imagePoint = new OpenSeadragon.Point(
         imageBounds.x + imageBounds.width * (x + 0.03),
         imageBounds.y + imageBounds.height * (y + 0.035)
       );
-
-      // Convert image coordinates to viewport coordinates
       const viewportPoint =
         viewer.viewport.imageToViewportCoordinates(imagePoint);
 
       const markerElement = document.getElementById("marker");
 
-      // Convert image coordinates to viewport coordinates
-      //const viewportPoint = viewer.viewport.imageToViewportCoordinates(point);
-
-      // Add the overlay with the correct positioning
       viewer.addOverlay({
         element: markerElement,
         location: imagePoint,
         placement: "CENTER",
       });
 
-      // Ensure the marker is visible
       markerElement.style.display = "block";
-
-      // Center the view on the marker
-      //viewer.viewport.panTo(viewportPoint);
-      //viewer.viewport.zoomTo(viewer.viewport.getHomeZoom());
     });
   };
 

@@ -33,6 +33,7 @@ import ActPage from "./pages/ActPage";
 import ResponsesTypesPage from "./pages/ResponsesTypesPage";
 import EventsPage from "./pages/EventsPage";
 import LocalizationsPage from "./pages/LocalizationsPage";
+import IssuesPage from "./pages/IssuesPage";
 
 import Users from "./pages/Users";
 import PermissionsPage from "./pages/PermissionsPage";
@@ -104,6 +105,7 @@ const LayoutWithSidebar = () => {
             <Route path="events" element={<EventsPage />} />
             <Route path="localizations" element={<LocalizationsPage />} />
             <Route path="act" element={<ActPage />} />
+            <Route path="issues" element={<IssuesPage />} />
           </Route>
 
           <Route path="users/*" element={<Users />}>

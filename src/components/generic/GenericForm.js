@@ -127,6 +127,9 @@ const GenericForm = ({
   const [formErrors, setFormErrors] = useState({});
   const [selectedObjectIds, setSelectedObjectIds] = useState([]);
 
+  // Initialize state for selected options of each select-multiple field
+  const [selectedOptions, setSelectedOptions] = useState({});
+
   const [mediaData, setMediaData] = useState(initialData?.mediaData || []);
   const [updatedMediaData, setUpdatedMediaData] = useState(
     initialData?.mediaData || []
@@ -212,6 +215,29 @@ const GenericForm = ({
     }
   }, [initialData]);
 
+  useEffect(() => {
+    setFormData(initialData || {});
+    // Initialize selected options for each select-multiple field based on initialData
+    const initialSelectedOptions = {};
+    formSchema.forEach((field) => {
+      if (
+        field.type === "select-multiple" &&
+        initialData &&
+        initialData[field.name]
+      ) {
+        initialSelectedOptions[field.name] = initialData[field.name].map(
+          (id) => ({
+            value: id,
+            label:
+              field.options.find((option) => option.value === id)?.label ||
+              id.toString(),
+          })
+        );
+      }
+    });
+    setSelectedOptions(initialSelectedOptions);
+  }, [initialData, formSchema]);
+
   const handleChange = (e) => {
     const { name, type } = e.target;
     const value = type === "checkbox" ? e.target.checked : e.target.value;
@@ -219,14 +245,14 @@ const GenericForm = ({
     setFormErrors({ ...formErrors, [name]: "" });
   };
 
-  const handleMultiSelectChange = (name, selectedOptions) => {
-    // Get the selected values as an array
-    const selectedValues = selectedOptions.map((option) => option.value);
-
-    // Update the form data with the selected values
+  const handleMultiSelectChange = (field, selectedOptions) => {
+    setSelectedOptions((prevSelectedOptions) => ({
+      ...prevSelectedOptions,
+      [field.name]: selectedOptions || [],
+    }));
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: selectedValues,
+      [field.name]: selectedOptions.map((option) => option.value),
     }));
   };
 
@@ -271,29 +297,27 @@ const GenericForm = ({
     }
   };
 
-  // When the component mounts, set the selected object IDs from initialData
   useEffect(() => {
-    // Ensure that initialData is not null
-    if (initialData?.object_id) {
-      setSelectedObjectIds(initialData.object_id);
-    }
-  }, [initialData]);
+    setFormData(initialData || {});
 
-  const getObjectById = (id) => {
-    // Find the option with the matching ID in the options array
-    const objectIdsField = formSchema.find(
-      (field) => field.name === "object_id"
-    );
+    // Initialize selected options for all select-multiple fields based on initialData
+    const initialSelectedOptions = {};
+    formSchema.forEach((field) => {
+      if (field.type === "select-multiple") {
+        // Use the field's name to look up initial values
+        const initialValue = initialData ? initialData[field.name] : [];
+        const options = field.options || [];
 
-    if (!objectIdsField) {
-      return "Unknown"; // Field not found in formSchema
-    }
+        // Map initial values to their corresponding label-value pairs
+        initialSelectedOptions[field.name] = initialValue.map((value) => {
+          const option = options.find((option) => option.value === value);
+          return { label: option ? option.label : value, value: value };
+        });
+      }
+    });
 
-    const option = objectIdsField.options.find((option) => option.value === id);
-
-    // If the option is found, return its label (ID - Name)
-    return option ? option.label : "Unknown";
-  };
+    setSelectedOptions(initialSelectedOptions);
+  }, [initialData, formSchema]);
 
   const handleFieldChange = (name, newValue) => {
     // Create a shallow copy of formData
@@ -372,22 +396,12 @@ const GenericForm = ({
                 <Select
                   className="wider-select"
                   isMulti
-                  options={
-                    formSchema.find((field) => field.name === "object_id")
-                      .options || []
+                  options={field.options}
+                  name={field.name}
+                  value={selectedOptions[field.name] || []} // Use dynamic state
+                  onChange={(selectedOptions) =>
+                    handleMultiSelectChange(field, selectedOptions)
                   }
-                  name="object_id"
-                  value={selectedObjectIds.map((id) => ({
-                    value: id,
-                    label: `${getObjectById(id)}`, // You can use a function to get the label
-                  }))}
-                  onChange={(selectedOptions) => {
-                    // Update the selected object IDs when the user selects/unselects
-                    setSelectedObjectIds(
-                      selectedOptions.map((option) => option.value)
-                    );
-                    handleMultiSelectChange("object_id", selectedOptions);
-                  }}
                 />
               ) : field.type === "relatedtextarea" ? (
                 <textarea

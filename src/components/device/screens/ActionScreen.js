@@ -1,62 +1,170 @@
-import { React, useState } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import ResponseTypes from "../ResponseTypes";
+import OpenSeadragon from "openseadragon";
 
-const ActionScreen = ({
-  action,
-  collectResponse,
-  initialResponse,
-  responseTypes,
-}) => {
-  const [dropdownVisibility, setDropdownVisibility] = useState({});
+const StatusDropdown = ({ onSelect, onClose }) => (
+  <div className="inline-dropdown">
+    <div onClick={() => onSelect("Missing")}>Missing</div>
+    <div onClick={() => onSelect("Problem")}>Problem</div>
+    <div onClick={() => onSelect("Not used")}>Not used</div>
+    <div onClick={() => onSelect("OK")}>OK</div>
+    <button onClick={onClose}>Close</button>
+  </div>
+);
+
+const ActionScreen = ({ action, collectResponse, initialResponse }) => {
+  //Localization
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+    setTimeout(initializeOpenSeadragon, 100);
+  };
+
+  const initializeOpenSeadragon = () => {
+    const { imageUrl, x, y } = extractDetailsFromLocalization(
+      action.Localization
+    );
+
+    var viewer = OpenSeadragon({
+      id: "openseadragon-viewer",
+      prefixUrl: `${process.env.PUBLIC_URL}/openseadragon/`,
+      tileSources: {
+        type: "image",
+        url: imageUrl,
+      },
+      visibilityRatio: 1,
+      minZoomImageRatio: 1,
+    });
+
+    viewer.addHandler("open", function () {
+      viewer.viewport.zoomTo(viewer.viewport.getHomeZoom());
+      const tiledImage = viewer.world.getItemAt(0);
+      const imageBounds = tiledImage.getBounds();
+      const imagePoint = new OpenSeadragon.Point(
+        imageBounds.x + imageBounds.width * (x + 0.03),
+        imageBounds.y + imageBounds.height * (y + 0.035)
+      );
+      const viewportPoint =
+        viewer.viewport.imageToViewportCoordinates(imagePoint);
+
+      const markerElement = document.getElementById("marker");
+
+      viewer.addOverlay({
+        element: markerElement,
+        location: imagePoint,
+        placement: "CENTER",
+      });
+
+      markerElement.style.display = "block";
+    });
+  };
+
+  function extractDetailsFromLocalization(localization) {
+    const imageUrl = localization.Media?.media_url;
+    const x = localization.x_coordinate / 100;
+    const y = localization.y_coordinate / 100;
+    return { imageUrl, x, y };
+  }
+
+  console.log("action:", action);
+  console.log("initialResponse:", initialResponse);
+
+  const [userComment, setUserComment] = useState(
+    initialResponse.UserComment || ""
+  );
   const [ObjectsStatusResponses, setObjectsStatusResponses] = useState(
     initialResponse.ObjectsStatusResponses || {}
   );
+
   const [ResponseTypeResponse, setResponseTypeResponse] = useState(
     initialResponse.ResponseTypeResponse || {}
   );
-  const responseType = action.ActionReference.ResponseType.type;
-  const responseLabel = action.ActionReference.response_label;
 
-  const handleAllResponses = () => {
+  // State to track the currently selected object ID for status update
+  const [selectedObjIdForStatus, setSelectedObjIdForStatus] = useState(null);
+
+  // State to hold all objects' statuses
+  const [objectsStatus, setObjectsStatus] = useState(
+    initialResponse.objectsStatus || {}
+  );
+
+  // Function to handle status selection for an object
+  const handleStatusSelect = (objId, status) => {
+    setObjectsStatus((prevStatuses) => ({
+      ...prevStatuses,
+      [objId]: status,
+    }));
+    setSelectedObjIdForStatus(null); // Close the dropdown
+  };
+
+  // Function to render the status button and dropdown
+  const renderStatusButtonAndDropdown = (objId) => (
+    <>
+      <button onClick={() => setSelectedObjIdForStatus(objId)}>
+        Set Status
+      </button>
+      {selectedObjIdForStatus === objId && (
+        <StatusDropdown
+          onSelect={(status) => handleStatusSelect(objId, status)}
+          onClose={() => setSelectedObjIdForStatus(null)}
+        />
+      )}
+    </>
+  );
+
+  useEffect(() => {
     const combinedResponse = {
       ResponseTypeResponse,
-      ObjectsStatusResponses,
+      UserComment: userComment,
+      objectsStatus: objectsStatus,
     };
+
+    console.log("Updated combinedResponse:", combinedResponse);
 
     collectResponse(combinedResponse);
-  };
-
-  const handleResponseTypeResponse = (response) => {
-    setResponseTypeResponse(response);
-
-    const immediateCombinedResponse = {
-      ResponseTypeResponse: response,
-      ObjectsStatusResponses,
-    };
-
-    collectResponse(immediateCombinedResponse);
-  };
-
-  const toggleDropdown = (objId) => {
-    setDropdownVisibility((prev) => ({ ...prev, [objId]: !prev[objId] }));
-  };
-
-  const handleSelectResponse = (objId, response) => {
-    setObjectsStatusResponses((prev) => ({ ...prev, [objId]: response }));
-    setDropdownVisibility((prev) => ({ ...prev, [objId]: false }));
-    handleAllResponses();
-  };
-
-  // Create a new array that combines items from action.ActionReference.Objects and action.Objects
-  const combinedArray = [...action.ActionReference.Objects, ...action.Objects];
+  }, [ResponseTypeResponse, userComment, objectsStatus]);
 
   return (
     <div className="screen">
       <div className="section">
+        <div className="action-flex-container">
+          <div className="action-text">
+            Action : {action.Operation.sequence} - {action.sequence}
+          </div>
+          {action && action.Localization && action.Localization.Media && (
+            <button
+              className="action-location-button"
+              onClick={handleOpenModal}
+            >
+              Show Location
+            </button>
+          )}
+        </div>
+
+        {isModalOpen && (
+          <div
+            className="device-modal-overlay"
+            style={{ display: isModalOpen ? "flex" : "none" }}
+          >
+            <div className="loc-modal-content">
+              <div
+                className="loc-close-button"
+                onClick={() => setModalOpen(false)}
+              >
+                &times;
+              </div>
+              <div id="openseadragon-viewer"></div>{" "}
+              <div id="marker" style={{ display: "none" }}></div>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="section">
         <div className="action-flag-section">
           <img
             src={
-              action.ActionReference.ActionType.name === "Read"
+              action.ActionReference.ActionType.name === "Capture"
                 ? "/eye.png"
                 : action.ActionReference.ActionType.name === "Check"
                 ? "/check.png"
@@ -67,8 +175,10 @@ const ActionScreen = ({
                 : ""
             }
           />
-          <span>{action.ActionReference.description}</span>
-          <span>{action.description}</span>
+          <span>
+            {action.ActionReference.ActionType.name} -{" "}
+            {action.ActionReference.Act.act} -{" "}
+          </span>
         </div>
       </div>
 
@@ -81,49 +191,47 @@ const ActionScreen = ({
         </div>
       )}
 
-      {combinedArray.length > 0 && (
+      {action.Objects && action.Objects.length > 0 && (
         <div className="section">
-          <div className="device-image-grid">
-            {combinedArray.map((obj) =>
-              obj.Media.length > 0 ? (
-                obj.Media.map((media) => (
-                  <div key={media.media_id} className="device-image-container">
-                    <img
-                      src={media.media_url}
-                      alt={media.comment}
-                      onClick={() => toggleDropdown(obj.object_id)}
-                    />
-                    {dropdownVisibility[obj.object_id] && (
-                      <div className="inline-dropdown">
-                        {["Missing", "Broken", "OK"].map((option) => (
-                          <div
-                            key={option}
-                            onClick={() =>
-                              handleSelectResponse(obj.object_id, option)
-                            }
-                            className={
-                              ObjectsStatusResponses[obj.object_id] === option
-                                ? "selected"
-                                : ""
-                            }
-                          >
-                            {option}
-                          </div>
-                        ))}
-                      </div>
+          <table className="table-section">
+            <thead>
+              <tr>
+                <th>Object</th>
+                <th>Image</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {action.Objects.map((obj) => (
+                <tr key={obj.object_id}>
+                  <td>
+                    {obj.object_code} - {obj.object_name}
+                  </td>
+                  <td>
+                    {obj.Media && obj.Media.length > 0 ? (
+                      <img
+                        src={obj.Media[0].media_url}
+                        alt="Object"
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      "No Image"
                     )}
-                    <div className="device-image-comment">
-                      {obj.object_code}-{obj.object_name}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div key={obj.object_id} className="device-image-container">
-                  {obj.object_code}-{obj.object_name}
-                </div>
-              )
-            )}
-          </div>
+                  </td>
+                  <td>
+                    {renderStatusButtonAndDropdown(obj.object_id)}
+                    {objectsStatus[obj.object_id] && (
+                      <span>({objectsStatus[obj.object_id]})</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -143,20 +251,24 @@ const ActionScreen = ({
         </div>
       )}
 
-      {responseType && (
-        <div className="section">
-          <h5>{responseLabel}</h5>
-          <div>
-            {/* Render ResponseTypes component */}
-            <ResponseTypes
-              responseType={responseType}
-              responseTypes={responseTypes}
-              collectResponse={handleResponseTypeResponse}
-              initialResponse={ResponseTypeResponse}
-            />
-          </div>
-        </div>
-      )}
+      {action.ActionReference.ActionType &&
+        action.ActionReference.ActionType.name == "Capture" && (
+          <ResponseTypes
+            action={action}
+            collectResponse={setResponseTypeResponse}
+            initialResponse={ResponseTypeResponse}
+          />
+        )}
+
+      <div className="section">
+        <label>Comment: </label>
+        <textarea
+          value={userComment}
+          onChange={(e) => setUserComment(e.target.value)}
+          placeholder="Any comment..."
+          className="comment-textarea"
+        ></textarea>
+      </div>
     </div>
   );
 };

@@ -332,6 +332,12 @@ const Sidebar = () => {
                     <p>Acts</p>
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link to="/configuration/issues" className="nav-link">
+                    <i className="far fa-circle nav-icon"></i>
+                    <p>Issues</p>
+                  </Link>
+                </li>
               </ul>
             </li>
 

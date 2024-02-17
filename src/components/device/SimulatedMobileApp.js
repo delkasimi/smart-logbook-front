@@ -12,6 +12,7 @@ import DeviceSpinner from "./screens/Spinner";
 import config from "../../configuration/config";
 import ConfirmationScreen from "./screens/ConfirmationScreen";
 import ErrorScreen from "./screens/ErrorScreen";
+import ProgressBar from "./ProgressBar";
 
 const SimulatedMobileApp = ({ procedureId, deviceType, onClose }) => {
   const procedureDetails = useProcedureDetails(procedureId);
@@ -21,7 +22,6 @@ const SimulatedMobileApp = ({ procedureId, deviceType, onClose }) => {
   const [showLoading, setShowLoading] = useState(true);
   const [animationClass, setAnimationClass] = useState("");
   const [navigationDirection, setNavigationDirection] = useState("next");
-  const [responseTypes, setResponseTypes] = useState([]);
 
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -75,32 +75,32 @@ const SimulatedMobileApp = ({ procedureId, deviceType, onClose }) => {
 
       phases.forEach((phase) => {
         const phaseScreen = { type: "phase", object: phase };
-        updatedScreens.push(phaseScreen);
+        //updatedScreens.push(phaseScreen);
 
         phase.Operations.sort((a, b) => a.sequence - b.sequence);
 
         phase.Operations.forEach((operation) => {
-          if (
-            lastLocalization &&
-            operation.Localization &&
-            lastLocalization.localization_id !==
-              operation.Localization.localization_id
-          ) {
-            const locationChangeScreen = {
-              type: "locationChange",
-              oldLocalization: lastLocalization,
-              newLocalization: operation.Localization,
-            };
-            updatedScreens.push(locationChangeScreen);
-          }
-          lastLocalization = operation.Localization;
-
-          const operationScreen = { type: "operation", object: operation };
-          updatedScreens.push(operationScreen);
+          //const operationScreen = { type: "operation", object: operation };
+          //updatedScreens.push(operationScreen);
 
           operation.Actions.sort((a, b) => a.sequence - b.sequence);
 
           operation.Actions.forEach((action) => {
+            if (
+              lastLocalization &&
+              action.Localization &&
+              lastLocalization.localization_id !==
+                action.Localization.localization_id
+            ) {
+              const locationChangeScreen = {
+                type: "locationChange",
+                oldLocalization: lastLocalization,
+                newLocalization: action.Localization,
+              };
+              //updatedScreens.push(locationChangeScreen);
+            }
+            lastLocalization = action.Localization;
+
             const actionScreen = { type: "action", object: action };
             updatedScreens.push(actionScreen);
           });
@@ -114,20 +114,6 @@ const SimulatedMobileApp = ({ procedureId, deviceType, onClose }) => {
 
       // Initialize current screen to procedure details
       setCurrentScreenIndex(0);
-
-      //response types
-      // Fetch response types from server
-      const fetchResponseTypes = async () => {
-        try {
-          const response = await fetch(`${config.API_BASE_URL}/responseType`);
-          const data = await response.json();
-          setResponseTypes(data);
-        } catch (error) {
-          console.error("Error fetching response types:", error);
-        }
-      };
-
-      fetchResponseTypes();
     }
 
     setTimeout(() => {
@@ -211,7 +197,6 @@ const SimulatedMobileApp = ({ procedureId, deviceType, onClose }) => {
             action={action}
             collectResponse={collectResponse}
             initialResponse={initialResponse}
-            responseTypes={responseTypes}
           />
         );
       case "end":
@@ -248,6 +233,7 @@ const SimulatedMobileApp = ({ procedureId, deviceType, onClose }) => {
         <DeviceFrame deviceType={deviceType}>
           <div className="device-app-header">
             <img src="/logo.png" alt="Logo" />
+            <ProgressBar current={currentScreenIndex} total={screens.length} />
           </div>
           <TransitionGroup className="device-app-content">
             <CSSTransition

@@ -137,6 +137,10 @@ const LocalizationsPage = () => {
       accessor: "name",
     },
     {
+      Header: "Code",
+      accessor: "code",
+    },
+    {
       Header: "Description",
       accessor: "description",
     },
@@ -200,6 +204,12 @@ const LocalizationsPage = () => {
     {
       label: "Name",
       name: "name",
+      type: "text",
+      required: true,
+    },
+    {
+      label: "Code",
+      name: "code",
       type: "text",
       required: true,
     },

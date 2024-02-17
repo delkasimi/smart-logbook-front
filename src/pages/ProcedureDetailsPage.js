@@ -204,6 +204,9 @@ const ProcedureDetailsPage = () => {
           // Transform action data and add processing for objects
           data = data.map(async (action) => {
             const mediaData = await fetchMediaForAction(action.action_id);
+            const localization = await fetchLocalizationForAction(
+              action.localization_id
+            );
 
             return {
               ...action,
@@ -213,10 +216,13 @@ const ProcedureDetailsPage = () => {
               object_id: getObjectDetails(action.object_id),
               response_type_id: getResponseTypeName(action.response_type_id),
               media: mediaData,
+              localization: localization,
             };
           });
 
-          const sortedActions = await Promise.all(data);
+          const actData = await Promise.all(data);
+          const sortedActions = actData.sort((a, b) => a.sequence - b.sequence);
+
           acts[operation.operation_id] = sortedActions;
         } catch (error) {
           console.error("Error fetching actions:", error);
@@ -225,6 +231,16 @@ const ProcedureDetailsPage = () => {
     }
 
     setActions(acts);
+  };
+
+  const fetchLocalizationForAction = async (localization_id) => {
+    const localization = localizations.find(
+      (loc) => loc.localization_id === localization_id
+    );
+    if (localization) {
+      return `${localization.localization_id} - ${localization.name}`;
+    }
+    return "Unkown Localization";
   };
 
   const fetchMediaForAction = async (actionId) => {
@@ -255,7 +271,7 @@ const ProcedureDetailsPage = () => {
 
   useEffect(() => {
     fetchActions();
-  }, [operations, phases]);
+  }, [actionReferences, operations, phases]);
 
   // Transofmration functions
   const getOperationTypeName = (operationTypeId) => {
@@ -297,6 +313,7 @@ const ProcedureDetailsPage = () => {
     const actionType = actionTypes.find(
       (at) => at.type_id === actionReference?.type_id
     );
+
     return actionReference && actionType
       ? `${actionReference.action_reference_id} - ${actionType.name} - ${actionReference.description}`
       : "Unknown";
@@ -305,10 +322,16 @@ const ProcedureDetailsPage = () => {
   const getObjectDetails = (objectIds) => {
     const objectDetails = {};
 
-    objectIds.forEach((id) => {
-      const object = objects.find((o) => o.object_id === id);
-      objectDetails[`${id}`] = object ? object.object_name : "Unknown Object";
-    });
+    if (objectIds && objectIds.length > 0) {
+      objectIds.forEach((id) => {
+        if (id === null) {
+          return;
+        }
+
+        const object = objects.find((o) => o.object_id === id);
+        objectDetails[`${id}`] = object ? object.object_name : "Unknown Object";
+      });
+    }
 
     return objectDetails;
   };
@@ -445,17 +468,10 @@ const ProcedureDetailsPage = () => {
       type: "text",
     },
     { label: "Description", attribute: "description", type: "textarea" },
-    { label: "Response Type ID", attribute: "response_type_id", type: "text" },
-    {
-      label: "Is Response Required",
-      attribute: "is_response_required",
-      type: "checkbox",
-    },
     { label: "Status", attribute: "status", type: "select" },
     { label: "From", attribute: "from", type: "text" },
     { label: "To", attribute: "to", type: "text" },
     { label: "Flag", attribute: "flag", type: "text" },
-    { label: "References", attribute: "references", type: "object" },
     { label: "Comments", attribute: "comments", type: "textarea" },
   ];
 
@@ -463,8 +479,8 @@ const ProcedureDetailsPage = () => {
     { label: "ID", attribute: "action_id", type: "number" },
     { label: "Sequence", attribute: "sequence", type: "number" },
     { label: "Reference ID", attribute: "action_reference_id", type: "text" },
-    { label: "Is Optional", attribute: "isoptional", type: "checkbox" },
     { label: "Description", attribute: "description", type: "textarea" },
+    { label: "Localization", attribute: "localization", type: "textarea" },
     { label: "Response Type", attribute: "response_type_id", type: "text" },
     { label: "Objects", attribute: "object_id", type: "object" },
     { label: "Medias", attribute: "media", type: "media" },
@@ -561,20 +577,6 @@ const ProcedureDetailsPage = () => {
       required: false,
     },
     {
-      label: "Response Type",
-      name: "response_type_id",
-      type: "select",
-      options: [],
-      required: false,
-    },
-
-    {
-      label: "Is Response Required",
-      name: "is_response_required",
-      type: "checkbox",
-      required: false,
-    },
-    {
       label: "Status",
       name: "status",
       type: "select",
@@ -606,12 +608,6 @@ const ProcedureDetailsPage = () => {
         { label: "normal", value: "normal" },
       ],
       required: true,
-    },
-    {
-      label: "References",
-      name: "references",
-      type: "object",
-      required: false,
     },
     {
       label: "Comments",
@@ -653,48 +649,9 @@ const ProcedureDetailsPage = () => {
     },
 
     {
-      label: "Is Optional",
-      name: "isoptional",
-      type: "checkbox",
-      required: false,
-    },
-    {
-      label: "Description",
-      name: "description",
-      type: "textarea",
-      required: false,
-    },
-    {
-      label: "Response Type",
-      name: "response_type_id",
-      type: "select",
-      options: responseTypes.map((rt) => ({
-        label: `${rt.response_type_id} - ${rt.type}`,
-        value: rt.response_type_id,
-      })),
-      required: true,
-    },
-    {
-      label: "Add more Objects",
-      name: "object_id",
-      type: "select-multiple",
-      options: objects.map((obj) => ({
-        label: `${obj.object_id} - ${obj.object_name}`,
-        value: obj.object_id,
-      })),
-      required: false,
-    },
-
-    {
       label: "Comment",
       name: "comment",
       type: "textarea",
-      required: false,
-    },
-    {
-      label: "Upload Photo",
-      name: "upload_photo",
-      type: "file",
       required: false,
     },
   ];
@@ -756,10 +713,16 @@ const ProcedureDetailsPage = () => {
                 Objects,
               }) => {
                 // Construct the label to include Act details, action reference ID, description, and object details
-                const objectDetails = Objects.map(
-                  ({ object_code, object_name }) =>
-                    `${object_code} - ${object_name}`
-                ).join(", ");
+                let objectDetails = "";
+                if (Objects && Objects.length > 0) {
+                  objectDetails = Objects.filter((obj) => obj !== null) // Filter out null values
+                    .map(
+                      ({ object_code, object_name }) =>
+                        `${object_code} - ${object_name}`
+                    )
+                    .join(", ");
+                }
+
                 const label = `${ActionType.name} ${Act.act} (${action_reference_id}) - ${description} - [${objectDetails}]`;
 
                 return {
@@ -775,10 +738,12 @@ const ProcedureDetailsPage = () => {
           // Flatten the structure by mapping over actionReferences and then over each of their Objects
           const options = actionReferences.flatMap(
             ({ action_reference_id, Objects }) =>
-              Objects.map(({ object_code, object_name }) => ({
-                label: `${object_code} - ${object_name}`,
-                value: action_reference_id, // Assuming you want the action_reference_id as the value for all objects under it
-              }))
+              Objects.filter((obj) => obj !== null).map(
+                ({ object_code, object_name }) => ({
+                  label: `${object_code} - ${object_name}`,
+                  value: action_reference_id,
+                })
+              )
           );
 
           // Return the updated field with the new options array
@@ -1538,24 +1503,7 @@ const ProcedureDetailsPage = () => {
             </div>
           </div>
 
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">Phases</h3>
-              <div className="card-tools">
-                <button
-                  className="btn btn-block btn-success float-right"
-                  onClick={openAddPhaseModal}
-                >
-                  Add Phase
-                </button>
-              </div>
-            </div>
-            <div className="card-body">
-              <div>
-                <div>{expandableTables}</div>
-              </div>
-            </div>
-          </div>
+          <div>{expandableTables}</div>
         </div>
       </div>
 
