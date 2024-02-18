@@ -460,7 +460,7 @@ const ProcedureDetailsPage = () => {
   const operationAttributes = [
     { label: "ID", attribute: "operation_id", type: "number" },
     { label: "Sequence", attribute: "sequence", type: "number" },
-    { label: "Localization", attribute: "localization_id", type: "text" },
+    //{ label: "Localization", attribute: "localization_id", type: "text" },
     { label: "Name", attribute: "name", type: "text" },
     {
       label: "Type",
@@ -471,7 +471,7 @@ const ProcedureDetailsPage = () => {
     { label: "Status", attribute: "status", type: "select" },
     { label: "From", attribute: "from", type: "text" },
     { label: "To", attribute: "to", type: "text" },
-    { label: "Flag", attribute: "flag", type: "text" },
+    //{ label: "Flag", attribute: "flag", type: "text" },
     { label: "Comments", attribute: "comments", type: "textarea" },
   ];
 
@@ -562,13 +562,13 @@ const ProcedureDetailsPage = () => {
       type: "number",
       required: true,
     },
-    {
-      label: "Localization",
-      name: "localization_id",
-      type: "select",
-      options: [],
-      required: true,
-    },
+    //{
+    //  label: "Localization",
+    // name: "localization_id",
+    //  type: "select",
+    //  options: [],
+    //  required: true,
+    //},
 
     {
       label: "Description",
@@ -598,17 +598,17 @@ const ProcedureDetailsPage = () => {
       type: "date",
       required: false,
     },
-    {
-      label: "Flag",
-      name: "flag",
-      type: "select",
-      options: [
-        { label: "important", value: "important" },
-        { label: "information", value: "information" },
-        { label: "normal", value: "normal" },
-      ],
-      required: true,
-    },
+    //{
+    //  label: "Flag",
+    //  name: "flag",
+    //  type: "select",
+    //  options: [
+    //    { label: "important", value: "important" },
+    //    { label: "information", value: "information" },
+    //    { label: "normal", value: "normal" },
+    //  ],
+    //  required: true,
+    //},
     {
       label: "Comments",
       name: "comments",
