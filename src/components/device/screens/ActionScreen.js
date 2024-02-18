@@ -128,10 +128,14 @@ const ActionScreen = ({ action, collectResponse, initialResponse }) => {
   return (
     <div className="screen">
       <div className="section">
+        <div className="action-operation-text">
+          Operation : {action.Operation.name}
+        </div>
         <div className="action-flex-container">
           <div className="action-text">
             Action : {action.Operation.sequence} - {action.sequence}
           </div>
+
           {action && action.Localization && action.Localization.Media && (
             <button
               className="action-location-button"

@@ -571,6 +571,16 @@
   color: white;
   display: inline-block;
 }
+.action-operation-text {
+  background-color: rgb(42, 165, 136);
+  padding: 4px;
+  border-radius: 4px;
+  color: white;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
 
 .action-location-button {
   background-color: rgb(64, 126, 178);
