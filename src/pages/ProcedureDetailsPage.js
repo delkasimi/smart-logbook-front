@@ -479,6 +479,7 @@ const ProcedureDetailsPage = () => {
     { label: "ID", attribute: "action_id", type: "number" },
     { label: "Sequence", attribute: "sequence", type: "number" },
     { label: "Reference ID", attribute: "action_reference_id", type: "text" },
+    { label: "Flag", attribute: "flag", type: "text" },
     { label: "Description", attribute: "description", type: "textarea" },
     { label: "Localization", attribute: "localization", type: "textarea" },
     { label: "Response Type", attribute: "response_type_id", type: "text" },
@@ -646,6 +647,17 @@ const ProcedureDetailsPage = () => {
       type: "relatedtextarea", // Custom type if you want to handle it differently
       readOnly: true, // Make sure this field is read-only
       options: "", // Default empty value, will be updated when an action reference is selected
+    },
+    {
+      label: "Flag",
+      name: "flag",
+      type: "select",
+      options: [
+        { label: "important", value: "important" },
+        { label: "information", value: "information" },
+        { label: "normal", value: "normal" },
+      ],
+      required: true,
     },
 
     {

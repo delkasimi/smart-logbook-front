@@ -164,6 +164,41 @@ const ActionScreen = ({ action, collectResponse, initialResponse }) => {
           </div>
         )}
       </div>
+
+      {["important", "information"].includes(action.flag) && (
+        <div
+          className={`section ${
+            action.flag === "important"
+              ? "important-bg"
+              : action.flag === "information"
+              ? "information-bg"
+              : ""
+          }`}
+        >
+          {["important", "information"].includes(action.flag) && (
+            <div className="flag-section">
+              <img
+                src={
+                  action.flag === "important"
+                    ? "/caution.png"
+                    : "/information.png"
+                }
+                alt={
+                  action.flag === "important"
+                    ? "Important Icon"
+                    : "Information Icon"
+                }
+              />
+              <span>
+                {action.flag === "important"
+                  ? "Important Action"
+                  : "Action for Information"}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="section">
         <div className="action-flag-section">
           <img
