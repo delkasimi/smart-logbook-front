@@ -217,6 +217,7 @@ const ActionScreen = ({ action, collectResponse, initialResponse }) => {
           <span>
             {action.ActionReference.ActionType.name} -{" "}
             {action.ActionReference.Act.act} -{" "}
+            {action.ActionReference.description}
           </span>
         </div>
       </div>
