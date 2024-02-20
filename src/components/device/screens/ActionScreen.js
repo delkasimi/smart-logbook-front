@@ -13,6 +13,7 @@ const StatusDropdown = ({ onSelect, onClose }) => (
 );
 
 const ActionScreen = ({ action, collectResponse, initialResponse }) => {
+  console.log("action:", action);
   //Localization
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -66,9 +67,6 @@ const ActionScreen = ({ action, collectResponse, initialResponse }) => {
     const y = localization.y_coordinate / 100;
     return { imageUrl, x, y };
   }
-
-  console.log("action:", action);
-  console.log("initialResponse:", initialResponse);
 
   const [userComment, setUserComment] = useState(
     initialResponse.UserComment || ""
@@ -135,6 +133,11 @@ const ActionScreen = ({ action, collectResponse, initialResponse }) => {
           <div className="action-text">
             Action : {action.Operation.sequence} - {action.sequence}
           </div>
+          {action && action.Localization && action.Localization.code && (
+            <div className="action-text">
+              Location: {action.Localization.code}
+            </div>
+          )}
 
           {action && action.Localization && action.Localization.Media && (
             <button
@@ -284,7 +287,6 @@ const ActionScreen = ({ action, collectResponse, initialResponse }) => {
               <div class="device-image-container" key={media.media_id}>
                 <img src={media.media_url} alt={media.comment} />
                 <div className="device-image-comment">{media.comment}</div>{" "}
-                {/* Comment below the image */}
               </div>
             ))}
           </div>

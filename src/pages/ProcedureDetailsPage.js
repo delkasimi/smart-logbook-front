@@ -203,9 +203,11 @@ const ProcedureDetailsPage = () => {
 
           // Transform action data and add processing for objects
           data = data.map(async (action) => {
-            const mediaData = await fetchMediaForAction(action.action_id);
+            const mediaData = await fetchMediaForAction(
+              action.ActionReference.action_reference_id
+            );
             const localization = await fetchLocalizationForAction(
-              action.localization_id
+              action.ActionReference.localization_id
             );
 
             return {
@@ -213,10 +215,13 @@ const ProcedureDetailsPage = () => {
               action_reference_id: getActionReferenceDetails(
                 action.action_reference_id
               ),
-              object_id: getObjectDetails(action.object_id),
-              response_type_id: getResponseTypeName(action.response_type_id),
+              object_id: getObjectDetails(action.ActionReference.object_id),
+              response_type_id: getResponseTypeName(
+                action.ActionReference.response_type_id
+              ),
               media: mediaData,
               localization: localization,
+              description: action.ActionReference.description,
             };
           });
 
@@ -243,10 +248,10 @@ const ProcedureDetailsPage = () => {
     return "Unkown Localization";
   };
 
-  const fetchMediaForAction = async (actionId) => {
+  const fetchMediaForAction = async (actionReferenceId) => {
     try {
       const response = await fetch(
-        `${config.API_BASE_URL}/media/action/${actionId}`
+        `${config.API_BASE_URL}/media/action_reference/${actionReferenceId}`
       );
 
       if (!response.ok) {
@@ -256,7 +261,10 @@ const ProcedureDetailsPage = () => {
       const mediaData = await response.json();
       return mediaData;
     } catch (error) {
-      console.error(`Error fetching media for action ${actionId}:`, error);
+      console.error(
+        `Error fetching media for action reference ${actionReferenceId}:`,
+        error
+      );
       return [];
     }
   };
@@ -315,7 +323,7 @@ const ProcedureDetailsPage = () => {
     );
 
     return actionReference && actionType
-      ? `${actionReference.action_reference_id} - ${actionType.name} - ${actionReference.description}`
+      ? `${actionReference.action_reference_id} - ${actionType.name}`
       : "Unknown";
   };
 

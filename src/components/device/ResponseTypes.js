@@ -12,7 +12,7 @@ const ResponseTypes = ({ action, collectResponse, initialResponse }) => {
   const options = action.ActionReference.ResponseType?.options;
   const issues = action.ActionReference.Issues;
   const [selectedIssueId, setSelectedIssueId] = useState("");
-  console.log("initialResponse:", initialResponse);
+
   useEffect(() => {
     if (initialResponse && initialResponse.response && options) {
       const { responseType, response: value } = initialResponse;
@@ -39,7 +39,6 @@ const ResponseTypes = ({ action, collectResponse, initialResponse }) => {
       initialResponse.response
     ) {
       const initialValues = initialResponse.response;
-      console.log("initialResponse:", initialResponse);
       setNumericInputValues(initialValues);
     }
 
