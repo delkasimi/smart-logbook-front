@@ -13,7 +13,6 @@ const StatusDropdown = ({ onSelect, onClose }) => (
 );
 
 const ActionScreen = ({ action, collectResponse, initialResponse }) => {
-  console.log("action:", action);
   //Localization
   const [isModalOpen, setModalOpen] = useState(false);
 
